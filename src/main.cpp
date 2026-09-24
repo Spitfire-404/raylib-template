@@ -9,7 +9,8 @@ int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    obj3d test("test");
+    Renderer mainRender;
+    mainRender.add(obj3d("test2"));
 
     InitWindow(screenWidth, screenHeight, "raylib template window");
 
@@ -23,6 +24,7 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("Hello, raylib!", 350, 220, 20, LIGHTGRAY);
+        mainRender.update();
 
 
 
