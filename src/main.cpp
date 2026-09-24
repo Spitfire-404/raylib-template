@@ -19,9 +19,12 @@ int main() {
     // Main game loop
     while (!WindowShouldClose()) {
         // Update
-
+        
         // Draw
         BeginDrawing();
+        
+        mainRender.update();
+        
         ClearBackground(RAYWHITE);
         DrawText("Hello, raylib!", 350, 220, 20, LIGHTGRAY);
         mainRender.update();
