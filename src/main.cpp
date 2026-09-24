@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "myMath.h"
+#include "Renderer.h"
 #include <iostream>
 #include <vector>
 
@@ -7,6 +8,9 @@ int main() {
     // Initialization
     const int screenWidth = 800;
     const int screenHeight = 450;
+
+    obj3d test("test");
+
     InitWindow(screenWidth, screenHeight, "raylib template window");
 
     SetTargetFPS(60);
@@ -19,6 +23,10 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("Hello, raylib!", 350, 220, 20, LIGHTGRAY);
+
+
+
+
         EndDrawing();
     }
 
