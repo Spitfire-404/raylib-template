@@ -3,41 +3,52 @@
 #include <myMath.h>
 #include <string>
 #include <iostream>
+#include <vector>
 #include "linkedList.h"
 
 using namespace std;
 
 
 class obj3d{
+    private:
+    vector<Vec3> vertexArr;
+    string file;
+
     public:
-    obj3d(){};
-    obj3d(string fileName){
+    obj3d(string fileName): file(fileName){
+
+
+
         cout << "obj3d created from: " << fileName << endl;
     };
     void draw(){
-        cout << "drawCall for: " << this << endl;
+        cout << "drawCall for: " << this->file << endl;
     };
+    void update(){
+        cout << "updateCall for: " << this->file << endl;
+    };
+    
 };
 
 class Renderer{
     public:
-    linkedList<obj3d> renderList;
+    linkedList<obj3d>* renderList = nullptr;
     Renderer(){};
 
     void update(){
-        linkedList<obj3d> current;
-        current.next = &renderList;
-        while (current.next != nullptr)
-        {
-            current = *current.next;
+        if(renderList==nullptr) return;
 
-            current.value.draw();
+        linkedList<obj3d> *current = renderList;
+        while (current != nullptr)
+        {
+            current->value.update();
+            current = current->next;
         }
-        
+
     };
 
     void add(obj3d obj){
-        renderList.append(obj);
+        linkedList<obj3d>::add(renderList, obj);
     }
 
 };
