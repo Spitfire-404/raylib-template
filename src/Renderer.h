@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <thread>
 #include "linkedList.h"
 
 using namespace std;
@@ -24,7 +25,7 @@ class obj3d{
     void draw(){
         cout << "drawCall for: " << this->file << endl;
     };
-    void update(){
+    void calcuationUpdate(){
         cout << "updateCall for: " << this->file << endl;
     };
     
@@ -32,18 +33,44 @@ class obj3d{
 
 class Renderer{
     public:
+    static const int CALC = 0;
+    static const int DRAW = 1;
+    
     linkedList<obj3d>* renderList = nullptr;
     Renderer(){};
 
-    void update(){
+    void update(int call){
         if(renderList==nullptr) return;
 
         linkedList<obj3d> *current = renderList;
+
+        vector<thread> threads;
         while (current != nullptr)
         {
-            current->value.update();
+
+            thread t
+            (
+                [current, call]()-> void{
+                    switch (call)
+                    {
+                    case CALC:
+                        current->value.calcuationUpdate();
+                        break;
+                    case DRAW:
+                        current->value.draw();
+                        break;
+                    }
+
+                }
+            );
+            t.detach();
             current = current->next;
         }
+
+        for(thread& t: threads){
+            t.join();
+        }
+
 
     };
 
