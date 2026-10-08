@@ -8,6 +8,7 @@ struct Vec2
 
     // Constructors
     Vec2() : x(0.0f), y(0.0f) {}
+    Vec2(float in[2]) : x(in[0]), y(in[1]) {}
     Vec2(float x, float y) : x(x), y(y) {}
 
     // Vector addition
@@ -85,6 +86,7 @@ struct Vec3
 
     // Constructors
     Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
+    Vec3(float in[3]) : x(in[0]), y(in[1]), z(in[2]) {}
     Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
     Vec3(const Vec2& v, float z = 0.0f) : x(v.x), y(v.y), z(z) {}
 

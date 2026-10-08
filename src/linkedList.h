@@ -9,7 +9,7 @@ public:
     T value{};
     //null terminated
     linkedList *next = nullptr;
-    linkedList(T in): value(in){};
+    linkedList(T in): value(std::move(in)){};
     linkedList(T in, linkedList *n): value(in), next(n){};
 
     void append(T data){
