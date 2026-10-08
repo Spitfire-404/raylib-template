@@ -1,5 +1,6 @@
-#pragma once 
+#pragma once
 #include <cmath>
+#include <string>
 
 struct Vec2
 {
@@ -75,6 +76,10 @@ struct Vec2
 
     inline bool operator!=(const Vec2& other) const {
         return !(*this == other);
+    }
+
+    std::string toSting() const {
+        return std::to_string(x)+std::to_string(y);
     }
 };
 
@@ -158,6 +163,10 @@ struct Vec3
 
     inline bool operator!=(const Vec3& other) const {
         return !(*this == other);
+    }
+
+    std::string toSting() const {
+        return std::to_string(x)+std::to_string(y)+std::to_string(z);
     }
 };
 

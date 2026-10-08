@@ -1,4 +1,6 @@
 #pragma once
+#include <forward_list>
+#include <iterator>
 #include <raylib.h>
 #include "myMath.h"
 #include <string>
@@ -7,7 +9,7 @@
 #include <vector>
 #include <thread>
 #include <utility>
-#include "linkedList.h"
+#include <list>
 
 using namespace std;
 
@@ -37,11 +39,12 @@ private:
 
     public:
     obj3d(const std::string& fileName)
-    {obj3d(fileName, 0,0,0, 0,0,0);};
+    :obj3d(fileName, 0,0,0, 0,0,0){}
     obj3d(const std::string& fileName, int x, int y, int z)
-    {obj3d(fileName, x,y,z, 0,0,0);};
+    :obj3d(fileName, x,y,z, 0,0,0){}
     obj3d(const std::string& fileName, int x, int y, int z, int xR, int yR, int zR): pos(x,y,z)
     {
+
         std::ifstream modelFile("src/models/"+fileName);
         if(!modelFile.is_open()){
             throw CustomException("file read error: "+ fileName);
@@ -88,25 +91,21 @@ private:
         string temp;
         float vec[3];
         int i = 0;
-        bool isNeg = false;
         for (char c : in.substr(2)) {
             switch (c) {
                 case ' ':
-                done:
                     vec[i] = std::stof(temp);
                     //isNeg? -vec[i]:
                     i++;
-                    isNeg = false;
                     temp.clear();
                     break;
-                case '-':
-                    isNeg = true;
                 default:
                     temp.push_back(c);
                     break;
             }
         }
-        //goto done;
+        vec[i] = std::stof(temp);
+
         vertexArr.push_back(Vec3(vec));
 
     };
@@ -124,6 +123,11 @@ private:
     };
     void calcuationUpdate(){
         cout << "updateCall for: " << this << endl;
+        cout << "verts:" << "\n";
+        for(Vec3 v : vertexArr){
+            cout << v.toSting() << "\n";
+        }
+
     };
 
 };
@@ -133,16 +137,15 @@ class Renderer{
     static const int CALC = 0;
     static const int DRAW = 1;
 
-    linkedList<obj3d>* renderList = nullptr;
+    forward_list<obj3d*> renderList;
     Renderer(){};
 
     void update(int call){
-        if(renderList==nullptr) return;
 
-        linkedList<obj3d> *current = renderList;
+
 
         vector<thread> threads;
-        while (current != nullptr)
+        for (obj3d* current : renderList)
         {
 
             thread t
@@ -151,17 +154,16 @@ class Renderer{
                     switch (call)
                     {
                     case CALC:
-                        current->value.calcuationUpdate();
+                        current->calcuationUpdate();
                         break;
                     case DRAW:
-                        current->value.draw();
+                        current->draw();
                         break;
                     }
 
                 }
             );
             t.detach();
-            current = current->next;
         }
 
         for(thread& t: threads){
@@ -171,13 +173,8 @@ class Renderer{
 
     };
 
-    void add(obj3d obj){
-        thread(
-            [=]()->void{
-                linkedList<obj3d>::add(renderList, obj);
-
-            }
-        ).detach();
+    void add(obj3d* obj){
+        renderList.push_front(obj);
     }
 
 };

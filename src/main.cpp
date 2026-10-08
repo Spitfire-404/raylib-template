@@ -10,7 +10,7 @@ int main() {
     const int screenHeight = 450;
 
     Renderer mainRender;
-    mainRender.add(obj3d("untitled.obj"));
+    mainRender.add(new obj3d("untitled.obj"));
 
 
     InitWindow(screenWidth, screenHeight, "raylib template window");
