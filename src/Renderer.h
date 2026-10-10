@@ -1,18 +1,31 @@
 #pragma once
+#include "myMath.h"
 #include "obj3d.h"
+#include <cstdlib>
+#include <forward_list>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <list>
+#include <raylib.h>
+#include <string>
 #include <thread>
+#include <utility>
 #include <vector>
+
+using namespace std;
+
 
 class Renderer {
 public:
   enum updateType{ CALC, DRAW };
 
-  std::vector<obj3d *> renderList;
+  vector<obj3d *> renderList;
   Renderer() {};
 
   void update(updateType call) {
 
-    std::vector<std::thread> threads;
+    vector<thread> threads;
     for (obj3d *current : renderList) {
 
       threads.emplace_back(
@@ -31,7 +44,7 @@ public:
 
     }
 
-    for (std::thread &t : threads) {
+    for (thread &t : threads) {
       t.join();
     }
   };

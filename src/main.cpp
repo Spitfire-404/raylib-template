@@ -14,7 +14,7 @@ int main() {
 
     Renderer mainRender;
     mainRender.add(new obj3d("untitled.obj", 0,0,50));
-    mainRender.renderList[0]->scale(10);
+    mainRender.renderList[0]->scale = 10;
 
 
     InitWindow(screenWidth, screenHeight, "raylib template window");
