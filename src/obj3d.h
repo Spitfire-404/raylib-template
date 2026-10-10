@@ -24,20 +24,32 @@ struct Vertex {
   Vec3 pos;
   Vec2 screen;
   Vec3 normal;
-  Vec2 texture;
+};
+struct texCoord : Vec2 {
+  using Vec2::Vec2;
+
+  texCoord() = default;
+  explicit texCoord(const Vec2 &value) : Vec2(value) {}
 };
 
 class obj3d {
 private:
     std::vector<Vertex> vertexArr;
+    std::vector<texCoord> texArr;
+    int vertexNum =0;
 
   // remember here int* is a int[3]
   std::vector<std::vector<int*>> faceArr;
 
 
 public:
-  Vec3 pos;
-  Vec3 rot;
+    const std::string name;
+    Vec3 pos;
+    Vec3 rot;
+
+    int getVertexNun(){
+        return vertexNum;
+    }
 
 
 
@@ -63,6 +75,7 @@ public:
 
       case 'v':
         vertexParse(currentLine);
+        vertexNum++;
         break;
 
       case 'f':
@@ -91,21 +104,38 @@ public:
 
 
 
+      bool firstN = true;
   void vertexParse(std::string in) {
-    if (in[1] != ' ') {
-      //throw CustomException("not standard vert: " + in);
-      return;
-    }
+
+      int start = 2;
+
+      switch (in[1]) {
+          case ' ':
+              break;
+          case 'n':
+              start++;
+              if(firstN){
+                  vertexNum = 0;
+                  firstN = false;
+              }
+              break;
+          case 't':
+              start++;
+              break;
+          default:
+              throw CustomException("not standard vert: " + in);
+              return;
+      }
+
 
     std::string temp;
     float vec[3];
     int i = 0;
 
-    for (char c : in.substr(2)) {
+    for (char c : in.substr(start)) {
       switch (c) {
       case ' ':
         vec[i] = std::stof(temp);
-        // isNeg? -vec[i]:
         i++;
         temp.clear();
         break;
@@ -116,8 +146,20 @@ public:
     }
     vec[i] = std::stof(temp);
 
-    vertexArr.push_back(Vertex{Vec3(vec), Vec2(), Vec3(), Vec2()});
+    switch (in[1]) {
+        case ' ':
+            vertexArr.push_back(Vertex{Vec3(vec), Vec2(), Vec3() });//Vec2()});
+            break;
+        case 'n':
+            vertexArr[vertexNum].normal = Vec3(vec);
+            break;
+        case 't':
+            texArr.push_back((texCoord)vec);
+            vertexNum--;
+            break;
+    }
   };
+
   void faceParse(std::string in) {
     if (in[1] != ' ') {
       throw CustomException("not standard face: " + in);

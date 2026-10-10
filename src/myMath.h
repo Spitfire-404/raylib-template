@@ -4,8 +4,8 @@
 
 struct Vec2
 {
-    float x;
-    float y;
+    union { float x; float u; };
+    union { float y; float v; };
 
     // Constructors
     Vec2() : x(0.0f), y(0.0f) {}

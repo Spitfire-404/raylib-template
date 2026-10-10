@@ -2,7 +2,6 @@
 #include "myMath.h"
 #include "Renderer.h"
 #include <cmath>
-#include <iostream>
 #include <thread>
 #include <atomic>
 #include <vector>
