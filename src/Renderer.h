@@ -28,7 +28,9 @@ public:
 
 class obj3d {
 private:
-  std::vector<Vec3> vertexArr;
+    std::vector<Vec3> vertexArr;
+    std::vector<Vec2> vertexArrScreen;
+
   // remember here int* is a int[3]
   std::vector<vector<int*>> faceArr;
 
@@ -36,9 +38,11 @@ private:
   Vec3 rot;
 
 public:
-  obj3d(const std::string &fileName) : obj3d(fileName, 0, 0, 0, 0, 0, 0) {}
+  obj3d(const std::string &fileName)
+  : obj3d(fileName, 0, 0, 0, 0, 0, 0) {}
   obj3d(const std::string &fileName, int x, int y, int z)
-      : obj3d(fileName, x, y, z, 0, 0, 0) {}
+  : obj3d(fileName, x, y, z, 0, 0, 0) {}
+
   obj3d(const std::string &fileName, int x, int y, int z, int xR, int yR,
         int zR)
       : pos(x, y, z) {
@@ -71,6 +75,10 @@ public:
       }
     }
 
+    //make both arrays the same length
+    for(Vec3 v : vertexArr){
+        vertexArrScreen.push_back(Vec2());
+    }
     std::cout << "obj3d created from: " << fileName << '\n';
   };
 
@@ -117,6 +125,7 @@ public:
       return;
     }
 
+    // -1 is empty
     int arr[3] = {-1, -1, -1};
     vector<int*> temp;
     int i = 0;
@@ -156,45 +165,67 @@ public:
   };
 
 
+  void scale(double in){
+      for (std::size_t i = 0; i < vertexArr.size(); ++i) {
+          vertexArr[i].x *= in;
+          vertexArr[i].y *= in;
+          vertexArr[i].z *= in;
+      }
+
+      calcuationUpdate();
+  }
 
 
 
 
+  void draw() {
+    cout << "drawCall for: " << this << endl;
 
-  void draw() { cout << "drawCall for: " << this << endl; };
+    for(Vec2 v : vertexArrScreen){
+        DrawCircle(v.x, v.y, 2, BLACK);
+    }
+
+  };
   void calcuationUpdate() {
     cout << "updateCall for: " << this << endl;
-    cout << "verts:" << "\n";
-    for (Vec3 v : vertexArr) {
-      cout << v.toSting() << "\n";
+
+    for(int i = 0; i< vertexArrScreen.size(); i++){
+        vertexArrScreen[i].x = (vertexArr[i].x + pos.x) / (vertexArr[i].z + pos.z);
+        vertexArrScreen[i].y = (vertexArr[i].y + pos.y) / (vertexArr[i].z + pos.z);
+        vertexArrScreen[i].x += GetScreenWidth()/2;
+        vertexArrScreen[i].y += GetScreenHeight()/2;
+
+
     }
   };
 };
 
 class Renderer {
 public:
-  static const int CALC = 0;
-  static const int DRAW = 1;
+  enum updateType{ CALC, DRAW };
 
-  forward_list<obj3d *> renderList;
+  vector<obj3d *> renderList;
   Renderer() {};
 
-  void update(int call) {
+  void update(updateType call) {
 
     vector<thread> threads;
     for (obj3d *current : renderList) {
 
-      thread t([current, call]() -> void {
-        switch (call) {
-        case CALC:
-          current->calcuationUpdate();
-          break;
-        case DRAW:
-          current->draw();
-          break;
-        }
-      });
-      t.detach();
+      threads.emplace_back(
+          ([current, call]() -> void
+                {
+                switch (call) {
+                case CALC:
+                  current->calcuationUpdate();
+                  break;
+                case DRAW:
+                  current->draw();
+                  break;
+                }
+          })
+      );
+
     }
 
     for (thread &t : threads) {
@@ -202,5 +233,5 @@ public:
     }
   };
 
-  void add(obj3d *obj) { renderList.push_front(obj); }
+  void add(obj3d *obj) { renderList.push_back(obj); }
 };

@@ -2,6 +2,8 @@
 #include "myMath.h"
 #include "Renderer.h"
 #include <iostream>
+#include <thread>
+#include <atomic>
 #include <vector>
 
 int main() {
@@ -9,8 +11,10 @@ int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
 
+
     Renderer mainRender;
-    mainRender.add(new obj3d("untitled.obj"));
+    mainRender.add(new obj3d("untitled.obj", 0,0,0));
+    mainRender.renderList[0]->scale(10);
 
 
     InitWindow(screenWidth, screenHeight, "raylib template window");
@@ -18,18 +22,24 @@ int main() {
     SetTargetFPS(60);
 
     // Main game loop
+
+    std::atomic<bool> running{true};
+
+    std::thread calculationThread([&mainRender, &running]() {
+        while (running.load()) {
+            mainRender.update(Renderer::CALC);
+        }
+    });
+
     while (!WindowShouldClose()) {
         // Update
 
         // Draw
-        mainRender.update(mainRender.CALC);
         BeginDrawing();
 
 
         ClearBackground(RAYWHITE);
-        DrawText("Hello, raylib!", 350, 220, 20, LIGHTGRAY);
         mainRender.update(mainRender.DRAW);
-
 
 
 
@@ -37,7 +47,9 @@ int main() {
     }
 
     // De-Initialization
-    CloseWindow();
+    running.store(false);
+    calculationThread.join();
 
+    CloseWindow();
     return 0;
 }
