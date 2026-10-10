@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "myMath.h"
 #include "Renderer.h"
+#include <cmath>
 #include <iostream>
 #include <thread>
 #include <atomic>
@@ -13,7 +14,7 @@ int main() {
 
 
     Renderer mainRender;
-    mainRender.add(new obj3d("untitled.obj", 0,0,0));
+    mainRender.add(new obj3d("untitled.obj", 0,0,50));
     mainRender.renderList[0]->scale(10);
 
 
@@ -27,12 +28,18 @@ int main() {
 
     std::thread calculationThread([&mainRender, &running]() {
         while (running.load()) {
+
             mainRender.update(Renderer::CALC);
+
         }
     });
 
     while (!WindowShouldClose()) {
         // Update
+        // random crap for testing
+        mainRender.renderList[0]->pos.x = 40*std::sin(GetTime());
+        mainRender.renderList[0]->pos.y = 40*std::cos(GetTime());
+        mainRender.renderList[0]->pos.z = 4* std::sin(GetTime()*4)+50;
 
         // Draw
         BeginDrawing();
