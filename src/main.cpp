@@ -39,6 +39,11 @@ int main() {
         mainRender.renderList[0]->pos.x = 40*std::sin(GetTime());
         mainRender.renderList[0]->pos.y = 40*std::cos(GetTime());
         mainRender.renderList[0]->pos.z = 4* std::sin(GetTime()*4)+50;
+        mainRender.renderList[0]->rot.x += 1;
+        mainRender.renderList[0]->rot.y += 1.2;
+        mainRender.renderList[0]->rot.z += 2.31;
+
+
 
         // Draw
         BeginDrawing();

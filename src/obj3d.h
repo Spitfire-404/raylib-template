@@ -1,6 +1,9 @@
 #pragma once
+#include "Renderer.h"
 #include "myMath.h"
 #include <cmath>
+#include <csignal>
+#include <cstdint>
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -49,9 +52,9 @@ private:
 
 public:
     const std::string name;
-    Vec3 pos;
-    Vec3 rot;
-    double scale;
+    Vec3 pos = Vec3();
+    Vec3 rot = Vec3();
+    double scale = 1;
 
 
 
@@ -213,21 +216,32 @@ public:
   enum axis{
       x,y,z
   };
-  void rotate(axis a, double degrees){
-      double rad = degrees*(PI/180);
-      // wip
+  Vec3 rotate(axis a, Vec3 in, double degrees) {
+      const double rad = degrees * (PI / 180.0);
+      const double cosAngle = std::cos(rad);
+      const double sinAngle = std::sin(rad);
+
+      float newX = in.x;
+      float newY = in.y;
+      float newZ = in.z;
+
       switch (a) {
           case axis::x:
-              // newY = y·cos(angle) - z·sin(angle)
-              // newZ = y·sin(angle) + z·cos(angle)
+              newY = static_cast<float>(in.y * cosAngle - in.z * sinAngle);
+              newZ = static_cast<float>(in.y * sinAngle + in.z * cosAngle);
               break;
           case axis::y:
+              newX = static_cast<float>(in.x * cosAngle + in.z * sinAngle);
+              newZ = static_cast<float>(-in.x * sinAngle + in.z * cosAngle);
               break;
           case axis::z:
+              newX = static_cast<float>(in.x * cosAngle - in.y * sinAngle);
+              newY = static_cast<float>(in.x * sinAngle + in.y * cosAngle);
               break;
       }
-  }
 
+      return Vec3(newX, newY, newZ);
+  }
 
 
   void draw() {
@@ -236,9 +250,28 @@ public:
 
     for(const Triangle& t : triArr){
 
-        if(Dot(t.points[0]->pos+pos, t.normals[0]) >0){
+        Vec3 normal = t.normals[0];
+        normal = rotate(x, normal, this->rot.x);
+        normal = rotate(y, normal, this->rot.y);
+        normal = rotate(z, normal, this->rot.z);
+
+        Vec3 point = t.points[0]->pos;
+        point.x *= scale;
+        point.y *= scale;
+        point.z *= scale;
+        point = rotate(x, point, this->rot.x);
+        point = rotate(y, point, this->rot.y);
+        point = rotate(z, point, this->rot.z);
+        point = point + pos;
+
+        if (Dot(-point, normal) < 0) {
             continue;
         }
+
+
+        DrawTriangle(Vector2{t.points[2]->screen.x,t.points[2]->screen.y}, Vector2{t.points[1]->screen.x,t.points[1]->screen.y}, Vector2{t.points[0]->screen.x,t.points[0]->screen.y}, BLACK);
+
+
         DrawLine(t.points[0]->screen.x, t.points[0]->screen.y,
                  t.points[1]->screen.x, t.points[1]->screen.y, RED);
 
@@ -249,6 +282,8 @@ public:
                  t.points[0]->screen.x, t.points[0]->screen.y, RED);
 
     }
+
+
 
   }
   void calcuationUpdate()
@@ -285,6 +320,12 @@ public:
           temp.pos.x *= scale;
           temp.pos.y *= scale;
           temp.pos.z *= scale;
+
+
+          temp.pos = rotate(x, temp.pos, this->rot.x);
+          temp.pos = rotate(y, temp.pos, this->rot.y);
+          temp.pos = rotate(z, temp.pos, this->rot.z);
+
 
 
           temp.pos = temp.pos + this->pos;
